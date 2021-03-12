@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
     <!-- 开启Spring自动扫描装配，对指定包中的类进行自动装配 -->
-    <context:component-scan base-package="org.example.model"/>
+    <context:component-scan base-package="com.lwh147.clouddisk.model"/>
 
     <bean id="dataSource"
           class="org.apache.commons.dbcp.BasicDataSource">
@@ -30,7 +30,7 @@
         <!-- 开启Hibernate实体类扫描 -->
         <property name="packagesToScan">
             <list>
-                <value>org.example.entity</value>
+                <value>com.lwh147.clouddisk.entity</value>
             </list>
         </property>
     </bean>

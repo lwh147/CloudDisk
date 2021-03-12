@@ -1,9 +1,9 @@
-package org.example.model.action;
+package com.lwh147.clouddisk.model.action;
 
 import com.alibaba.fastjson.JSON;
+import com.lwh147.clouddisk.entity.User;
+import com.lwh147.clouddisk.model.service.UserService;
 import org.apache.struts2.ServletActionContext;
-import org.example.entity.User;
-import org.example.model.service.UserService;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 

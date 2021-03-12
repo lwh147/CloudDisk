@@ -1,7 +1,7 @@
-package org.example.model.service;
+package com.lwh147.clouddisk.model.service;
 
-import org.example.entity.User;
-import org.example.model.dao.UserDao;
+import com.lwh147.clouddisk.entity.User;
+import com.lwh147.clouddisk.model.dao.UserDao;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

@@ -1,6 +1,6 @@
-package org.example.model.dao;
+package com.lwh147.clouddisk.model.dao;
 
-import org.example.entity.User;
+import com.lwh147.clouddisk.entity.User;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

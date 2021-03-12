@@ -1,4 +1,4 @@
-package org.example.entity;
+package com.lwh147.clouddisk.entity;
 
 import javax.persistence.*;
 
