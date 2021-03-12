@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录</title>
+    <!-- 网页图标 -->
+    <link rel="icon" href="../res/logo.png" sizes="32x32">
+    <!-- 内部css -->
+    <style type="text/css">
+        body, div, p, a, input {
+            margin: 0;
+            padding: 0;
+        }
+        #root{
+            width: 100%;
+            height: 937px;
+            background-image: url("../res/login_background.jpg");
+        }
+        #header{
+            width: 100%;
+            height: 10%;
+        }
+        #header div{
+            color: white;
+            font-size: 50px;
+            font-family: 华文琥珀;
+            float: left;
+            margin-top: 20px;
+            margin-left: 40px;
+        }
+        #body{
+            width: 100%;
+            height: 90%;
+            display: inline-block;
+        }
+        #login{
+            background-color: white;
+            width: 20%;
+            height: 45%;
+            border-radius: 5px;
+            margin-top: 100px;
+            margin-left: 1200px;
+            display: inline-block;
+        }
+        #title{
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 40px;
+            margin-left: 40px;
+            margin-bottom: 20px;
+        }
+        #login .editLine{
+            width: 300px;
+            height: 35px;
+            margin-top: 25px;
+            margin-left: 40px;
+            border-radius: 5px;
+            outline: none;
+            border: 1px lightgray solid;
+        }
+        #login-button{
+            cursor: pointer;
+            background-color: #0dabff;
+            color: white;
+        }
+        #register{
+            margin-top: 30px;
+            margin-left: 40px;
+            font-size: 15px;
+            color: #a3a3a3;
+        }
+        #register a:link{
+            text-decoration: none;
+            color: #a9b4d3;
+        }
+        #register a:visited{
+            text-decoration: none;
+            color: #a9b4d3;
+        }
+        #register a:hover{
+            text-decoration: underline;
+            color: firebrick;
+        }
+        #register a:active{
+            text-decoration: underline;
+            color: firebrick;
+        }
+    </style>
+    <!-- js引入 -->
+    <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
+    <!-- 内部js -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#login-button").hover(
+                function () {
+                    $("#login-button").css("background-color", "rgba(13,171,255,0.62)");
+                },
+                function () {
+                    $("#login-button").css("background-color", "#0dabff");
+                }
+            )
+        });
+        //收集账户信息发送到后端进行登录验证
+        function validator() {
+            let uname = $("#uname").val();
+            let passwd = $("#passwd").val();
+            if(uname==null || uname === ""){
+                alert("用户名不能为空！");
+                $("#uname").focus();
+            } else if (uname.length!==10){
+                alert("用户名长度必须为10！");
+                $("#uname").focus();
+            } else if (passwd == null || passwd === "") {
+                alert("密码不能为空！");
+                $("#passwd").focus();
+            } else if (passwd.length != 6) {
+                alert("密码必须为6位！");
+                $("#passwd").focus();
+            } else {
+                $.ajax({
+                    url:"ctrl_checkLogin",
+                    type: "post",
+                    data:{
+                        uname:uname,
+                        passwd:passwd
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        console.log("登陆验证结果：");
+                        console.log(data);
+                        let result = data.toString();
+                        if (result==="1"){
+                            //验证通过，重定向至用户网盘界面
+                            $(window).attr("location", "UserCloudDisk.html?folder=");
+                        }else if(result==="-1"){
+                            alert("用户名错误！");
+                            $("#uname").focus();
+                        }else if(result==="0"){
+                            alert("密码错误！");
+                            $("#passwd").focus();
+                        }else{
+                            alert("校验结果出错！");
+                        }
+                    },
+                    error: function (error) {
+                        alert("----ajax请求回调出错函数！----\n"+error.responseText);
+                    }
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root">
+        <div id="header">
+            <div>网络云盘系统</div>
+        </div>
+        <div id="body">
+            <div id="login">
+                <p id="title">账号密码登录</p>
+                <input type="text" class="editLine" id="uname" placeholder=" 用户名">
+                <br>
+                <input type="text" class="editLine" id="passwd" placeholder=" 密码">
+                <br>
+                <input type="button" value="登录" class="editLine" id="login-button" onclick="validator()">
+                <p id="register">还没有账号？立即<a href="UserRegister.html">注册</a>！</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册</title>
+    <!-- 网页图标 -->
+    <link rel="icon" href="../res/logo.png" sizes="32x32">
+    <!-- 内部css -->
+    <style type="text/css">
+        body, div, p, input {
+            margin: 0;
+            padding: 0;
+        }
+        #root{
+            width: 100%;
+            height: 936px;
+            display: inline-block;
+        }
+        #register{
+            margin-top: 50px;
+            margin-left: 750px;
+            font-size: 15px;
+            color: #454545;
+            border: 1px lightgray solid;
+            width: 400px;
+            height: 400px;
+        }
+        #title{
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 40px;
+            margin-left: 130px;
+            margin-bottom: 20px;
+        }
+        #register .editLine{
+            width: 250px;
+            height: 40px;
+            margin-top: 25px;
+            border-radius: 5px;
+            outline: none;
+            border: 1px lightgray solid;
+        }
+        #register div{
+            margin-left: 40px;
+        }
+        #login-button{
+            cursor: pointer;
+            background-color: #0dabff;
+            color: white;
+            margin-left: 80px;
+        }
+        #register a:link{
+            text-decoration: none;
+            color: #a9b4d3;
+        }
+        #register a:visited{
+            text-decoration: none;
+            color: #a9b4d3;
+        }
+        #register a:hover{
+            text-decoration: underline;
+            color: firebrick;
+        }
+        #register a:active{
+            text-decoration: underline;
+            color: firebrick;
+        }
+    </style>
+    <!-- js引入 -->
+    <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
+    <!-- 内部js -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#login-button").hover(
+                function () {
+                    $("#login-button").css("background-color", "rgba(13,171,255,0.62)");
+                },
+                function () {
+                    $("#login-button").css("background-color", "#0dabff");
+                }
+            )
+        });
+        //收集账户信息发送到后端进行登录验证
+        function validator() {
+            let uname = $("#uname").val();
+            let passwd = $("#passwd").val();
+            if(uname==null || uname === ""){
+                alert("用户名不能为空！");
+                $("#uname").focus();
+            } else if (uname.length!==10){
+                alert("用户名长度必须为10！");
+                $("#uname").focus();
+            } else if (passwd == null || passwd === "") {
+                alert("密码不能为空！");
+                $("#passwd").focus();
+            } else if (passwd.length != 6) {
+                alert("密码必须为6位！");
+                $("#passwd").focus();
+            } else {
+                $.ajax({
+                    url:"ctrl_register",
+                    type: "post",
+                    data:{
+                        uname:uname,
+                        passwd:passwd
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        console.log("注册验证结果：");
+                        console.log(data);
+                        let result = data.toString();
+                        if (result==="1"){
+                            //注册成功，提示用户是否立即登录，立即登录则重定向至登录页面
+                            alert("注册成功！");
+                            let choice = confirm("是否立即登录？");
+                            if (choice === true)
+                                $(window).attr("location", "UserLogin.html");
+                        }else if(result==="0"){
+                            alert("注册失败！该用户已存在！");
+                            $("#passwd").focus();
+                        }else{
+                            alert("校验结果出错！");
+                        }
+                    },
+                    error: function (error) {
+                        alert("----ajax请求回调出错函数！----\n"+error.responseText);
+                    }
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root">
+        <div id="register">
+            <p id="title">用户注册</p>
+            <div>
+                用户名：<input type="text" class="editLine" id="uname" placeholder=" 用户名(长度为10位)">
+            </div>
+            <br>
+            <div>
+                密&nbsp;&nbsp;&nbsp;&nbsp;码：<input type="text" class="editLine" id="passwd" placeholder=" 密码(长度为6位)">
+            </div>
+            <br>
+            <input type="button" value="注册" class="editLine" id="login-button" onclick="validator()">
+        </div>
+    </div>
+</body>
+</html>

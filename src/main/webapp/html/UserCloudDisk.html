@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>网络云盘系统</title>
+<!-- 网页图标 -->
+<link rel="icon" href="../res/logo.png" sizes="32x32">
+<!-- 内部css -->
+<style type="text/css">
+body, div, p, a, input, span, tr, td, table {
+	margin: 0;
+	padding: 0;
+}
+
+#root {
+	width: 100%;
+	height: 937px;
+	background-image: url("../res/index_background.png");
+}
+
+#header {
+	width: 100%;
+	height: 10%;
+}
+
+#header div {
+	color: white;
+	font-size: 50px;
+	font-family: 华文琥珀;
+	float: left;
+	margin-top: 20px;
+	margin-left: 40px;
+}
+
+#user-info {
+	float: right;
+	color: white;
+	font-size: 30px;
+	margin-top: 25px;
+	margin-left: 40px;
+}
+
+#user-info a, p {
+	float: left;
+}
+
+#user-info p {
+	margin-right: 30px;
+}
+
+#user-info a {
+	margin-right: 20px;
+}
+
+#user-info a:link {
+	text-decoration: none;
+	color: white;
+}
+
+#user-info a:visited {
+	text-decoration: none;
+	color: white;
+}
+
+#user-info a:hover {
+	text-decoration: underline;
+	color: #ff2525;
+}
+
+#user-info a:active {
+	text-decoration: underline;
+	color: #ff2525;
+}
+#body {
+	width: 100%;
+	height: 89.5%;
+	/*所有毗邻的两个或更多盒元素的margin将会合并为一个margin共享之。毗邻的定义为：同级或者嵌套的盒元素，并且它们之间没有非空内容、Padding或Border分隔。*/
+	display: inline-block;
+	background-color: rgba(255, 255, 255, 0.7);
+}
+
+#tool-bar {
+	width: 100%;
+	height: 50px;
+	display: inline-block;
+}
+
+#body .button {
+	width: 180px;
+	height: 40px;
+	color: white;
+	border-radius: 5px;
+	margin-top: 5px;
+	margin-left: 20px;
+	float: left;
+	font-size: 20px;
+	cursor: pointer;
+	background-color: #0dabff;
+	outline: none;
+	border: 1px lightgray solid;
+}
+
+#upload-file-button {
+	display: none;
+}
+
+#show-path {
+	width: 100%;
+	height: 30px;
+	font-size: 20px;
+	border-top: 1px lightgray solid;
+	border-bottom: 1px lightgray solid;
+}
+
+#path {
+	float: left;
+}
+
+#file-count {
+	float: right;
+}
+
+#file-container {
+	width: 100%;
+	height: 700px;
+	margin: 0 auto;
+	border-radius: 10px;
+	padding-top: 20px;
+	overflow: auto;
+}
+
+#file-list {
+	width: 99%;
+	text-align: center;
+	margin: 0 auto;
+	border: 1px darkgray solid;
+}
+
+#table-header td {
+	font-weight: bold;
+}
+
+#file-list td {
+	border: 1px darkgray solid;
+}
+
+#file-list .fileName {
+	width: 40%;
+}
+
+#file-list .lastModify {
+	width: 20%;
+}
+
+#file-list .fileSize {
+	width: 20%;
+}
+
+#file-list .operation {
+	width: 20%;
+}
+
+#new-folder-name-container {
+	width: 400px;
+	height: 80px;
+	border: 1px darkgray solid;
+	padding-top: 20px;
+	padding-left: 65px;
+	background-color: white;
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin-top: 300px;
+	margin-left: 700px;
+	display: none;
+}
+
+#new-folder-name-container .new-folder-button {
+	margin-top: 20px;
+	margin-left: 50px;
+	width: 80px;
+	height: 20px;
+	color: white;
+	border-radius: 5px;
+	cursor: pointer;
+	background-color: #0dabff;
+	outline: none;
+	border: 1px lightgray solid;
+}
+
+#cover {
+	display: none;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	background-color: rgba(0, 0, 0, 0.6);
+}
+#file-list a:link{
+	text-decoration: none;
+	color:black;
+}
+#file-list a:visited{
+	text-decoration: none;
+	color:black;
+}
+#file-list a:hover{
+	text-decoration: none;
+	color: blue;
+}
+#file-list a:active{
+	text-decoration: none;
+	color: blue;
+}
+</style>
+<!-- js引入 -->
+<script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
+<script type="text/javascript" src="../js/mylib.js"></script>
+<!-- 内部js -->
+<script type="text/javascript">
+	//保存当前用户所在目录
+	let currentFolder = getUrlParam("folder");
+	console.log("获取的路径")
+	console.log(currentFolder);
+	//保存当前用户剩余空间
+	let remainder = 0;
+	//保存当前登录用户名
+	let uname = "";
+	//页面加载时要完成的工作
+	$(document).ready(function() {
+		//按钮的hover事件
+		$("#upload-button-container").hover(
+			function() {
+				$("#upload-button-container").css("background-color", "rgba(13,171,255,0.62)");
+			},
+			function() {
+				$("#upload-button-container").css("background-color", "#0dabff");
+			}
+		);
+		$("#new-folder-button").hover(
+			function() {
+				$("#new-folder-button").css("background-color", "rgba(13,171,255,0.62)");
+			},
+			function() {
+				$("#new-folder-button").css("background-color", "#0dabff");
+			}
+		);
+		$("#parent-button").hover(
+			function() {
+				$("#parent-button").css("background-color", "rgba(13,171,255,0.62)");
+			},
+			function() {
+				$("#parent-button").css("background-color", "#0dabff");
+			}
+		);
+		$("#index-button").hover(
+			function() {
+				$("#index-button").css("background-color", "rgba(13,171,255,0.62)");
+			},
+			function() {
+				$("#index-button").css("background-color", "#0dabff");
+			}
+		);
+		//加载欢迎信息
+		$.ajax({
+			url : "ctrl_getLoginUserInfo",
+			type : "get",
+			dataType : "json",
+			success : function(data) {
+				console.log("登陆用户信息:");
+				console.log(data);
+				if (data === "0") {
+					alert("请先登录！");
+					$(window).attr("location", "UserLogin.html");
+				} else{
+					$("#hello").html("你好，" + data.uname.toString());
+					uname = data.uname.toString();
+				}
+			},
+			fail : function(error) {
+				alert("----ajax请求回调出错函数！----\n" + error.responseText);
+			}
+		});
+		//加载用户文件
+		$.ajax({
+			url : "ctrl_showUserFile",
+			type : "post",
+			data : {
+				relativeSavePath : currentFolder
+			},
+			dataType : "json",
+			success : function(data) {
+				console.log("得到的文件信息列表:");
+				console.log(data);
+				if(data === -1){
+					return -1
+				}
+				//显示当前路径和文件个数
+				if (currentFolder === "")
+					$("#path").html("全部文件");
+				else
+					$("#path").html(currentFolder);
+				//显示文件列表
+				let html = "";
+				let	fileCount = 0;
+				$.each(data, function(key, value) {
+					fileCount++;
+					let fileName = key.toString();
+					let fileLastModify = timestampToTime(value.split("-")[0]);
+					let fileSize = value.split("-")[1];
+					let fileSuffix = fileName.split(".")[1];
+					if (fileSuffix === undefined) {
+						let enterFolder = currentFolder + "/" + fileName;
+						html += "<tr><td><a href='UserCloudDisk.html?folder=" + enterFolder + "'>" + fileName + "</a></td>";
+					} else
+						html += "<tr><td>" + fileName + "</td>";
+					html += "<td>" + fileLastModify + "</td>" +
+							"<td>" + fileSize + "MB</td>"+
+							"<td><a href='javascript:void(0)' onclick='deleteFile(\"" + fileName + "\")'>删除</a>";	//这里fileName直接被替换为值，所以要加上引号
+					if (fileSuffix !== undefined)
+						html += "  |  <a href='javascript:void(0)' onclick='downloadFile(\"" + fileName + "\")'>下载</a></td></tr>";
+					else
+						html += "</td></tr>";
+				});
+				$("#file-list").append(html);
+				console.log("文件的个数:");
+				console.log(fileCount);
+				$("#file-count").html("共" + fileCount + "个文件");
+			},
+			fail : function(error) {
+				alert("----ajax请求回调出错函数！----\n" + error.responseText);
+			}
+		});
+		//加载用户剩余空间
+		$.ajax({
+			url : "ctrl_getRemainder",
+			type : "get",
+			dataType : "json",
+			async : false,
+			success : function(data) {
+				console.log("用户剩余空间：");
+				console.log(data);
+				let result = data.toString();
+				if (result !== "") {
+					$("#remainder").html("您当前剩余空间大小为" + result + "MB");
+					remainder = parseFloat(result);
+				} else
+					alert("获取剩余空间大小失败!");
+			},
+			fail : function(error) {
+				alert("----ajax请求回调出错函数！----\n" + error.responseText);
+			}
+		});
+	});
+	//用户退出登录
+	function logout() {
+		$.ajax({
+			url : "ctrl_logout",
+			type : "post",
+			dataType : "json",
+			async : false,
+			success : function(data) {
+				console.log("退出结果：");
+				console.log(data);
+				let result = data.toString();
+				if (result === "1") {
+					alert("退出成功！");
+					$(window).attr("location", "UserLogin.html");
+				} else
+					alert("退出失败!");
+			},
+			fail : function(error) {
+				alert("----ajax请求回调出错函数！----\n" + error.responseText);
+			}
+		});
+	}
+	//点击上传文件
+	function trueUploadFile() {
+		//调用文件上传按钮的click事件
+		$("#upload-file-button").click();
+	}
+	//上传文件
+	function fileUpload() {
+		//匹配文本中的数字
+		console.log(remainder);
+		let file = $("#upload-file-button").get(0).files[0];
+		console.log("上传的文件");
+		console.log(file);
+		let size = file.size / 1048576;
+		console.log("上传文件大小:");
+		console.log(size);
+		console.log(remainder);
+		//判断用户剩余空间是否足够
+		if (size < remainder) {
+			let url = "ctrl_userUploadFile?fileName=" + file.name + "&relativeSavePath=" + currentFolder;
+			let formData = new FormData();
+			formData.append("uploadFile", file);
+			$.ajax({
+				url : url,
+				type : "post",
+				data : formData,
+				//是否对数据进行序列化处理
+        		processData:false,
+        		//是否对数据类型进行转换
+        		contentType:false,
+				dataType : "json",
+				success : function(data) {
+					console.log("文件上传结果：");
+					console.log(data);
+					let result = data.toString();
+					if (result === "1") {
+						alert("上传成功！");
+						location.reload();
+					} else
+						alert("文件上传失败!");
+				},
+				fail : function(error) {
+					alert("----ajax请求回调出错函数！----\n" + error.responseText);
+				}
+			});
+		} else {
+			alert("您当前剩余空间不足！");
+		}
+	}
+	//用户下载文件
+	function downloadFile(fileName) {
+		//在页面创建一个超链接标签，并将其download属性设置为即将下载的文件名，然后调用该链接的点击事件即可触发下载
+		let url = "../res/disk/" + uname + currentFolder + "/" + fileName;
+		let a = document.createElement('a');
+		a.href = url;
+		a.download = fileName;
+		a.click();
+	}
+	//点击新建文件夹弹出新建文件夹名称填写
+	function onNewFolderClick() {
+		$("#new-folder-name-container").css("display", "block");
+		$("#cover").css("display", "block"); //显示遮罩层，注意遮罩层必须在自定义输入框之前定义，否则会遮挡输入框
+		$("#cover").css("height", document.body.clientHeight + "px"); //设置遮罩层的高度为当前页面高度
+	}
+	//新建文件夹
+	function newFolder() {
+		let folderName = $("#new-folder-name").val();
+		console.log("文件夹名");
+		console.log(folderName);
+		if (folderName === null || folderName === "") {
+			alert("请输入文件名！");
+			$("folderName").focus();
+		} else {
+			$.ajax({
+				url : "ctrl_createFolder",
+				type : "post",
+				data : {
+					folderName : folderName,
+					relativeSavePath : currentFolder
+				},
+				async : false,
+				success : function(data) {
+					console.log("创建文件夹结果：");
+					console.log(data);
+					let result = data.toString();
+					if (result === "1") {
+						alert("创建成功！");
+						location.reload();
+					} else if (result === "0") {
+						alert("该文件夹已存在！");
+						location.reload();
+					} else
+						alert("创建失败!");
+				},
+				fail : function(error) {
+					alert("----ajax请求回调出错函数！----\n" + error.responseText);
+				}
+			});
+		}
+	}
+	//取消新新建文件夹
+	function cancelNewFolder() {
+		$("#new-folder-name-container").css("display", "none");	//隐藏输入框
+		$("#cover").css("display", "none"); //隐藏遮罩层
+	}
+	//删除文件或文件夹
+	function deleteFile(fileName) {
+		let result = fileName.split(".")[1];
+		if (result === undefined) {
+			//删除文件夹，提示用户是否确认删除该文件夹下所有文件
+			let choice = confirm("是否删除该文件夹及其下所有文件？");
+			if (choice === true) {
+				$.ajax({
+					url : "ctrl_deleteFile",
+					type : "post",
+					data : {
+						fileName : fileName,
+						relativeSavePath : currentFolder
+					},
+					async : false,
+					success : function(data) {
+						console.log("删除文件夹结果：");
+						console.log(data);
+						let result = data.toString();
+						if (result === "0") {
+							alert("删除失败！");
+						} else if (result === "1") {
+							alert("删除成功！");
+							location.reload();
+						} else
+							alert("未知结果!");
+					},
+					fail : function(error) {
+						alert("----ajax请求回调出错函数！----\n" + error.responseText);
+					}
+				});
+			}
+		}else{
+			$.ajax({
+				url : "ctrl_deleteFile",
+				type : "post",
+				data : {
+					fileName : fileName,
+					relativeSavePath : currentFolder
+				},
+				async : false,
+				success : function(data) {
+					console.log("删除文件结果：");
+					console.log(data);
+					let result = data.toString();
+					if (result === "0") {
+						alert("删除失败！");
+					} else if (result === "1") {
+						alert("删除成功！");
+						location.reload();
+					} else
+						alert("未知结果!");
+				},
+				fail : function(error) {
+					alert("----ajax请求回调出错函数！----\n" + error.responseText);
+				}
+			});
+		}
+	}
+	//返回上一级
+	function parentFolder() {
+		if (currentFolder === "") {
+			alert("当前已是根目录！无法返回上一级！");
+		} else {
+			let folderList = currentFolder.split("/");
+			let parentFolder = "";
+			for (let i = 1; i < folderList.length - 1; i++)
+				parentFolder += "/" + folderList[i];
+			$(window).attr("location", "UserCloudDisk.html?folder=" + parentFolder);
+		}
+	}
+	//返回首页
+	function index() {
+		$(window).attr("location", "UserCloudDisk.html?folder=");
+	}
+</script>
+</head>
+<body>
+	<div id="root">
+		<div id="header">
+			<div>网络云盘系统</div>
+			<span id="user-info">
+				<p id="hello">你好,</p>
+				<p id="remainder">您当前剩余空间为100MB</p> <a href="javascript:void(0)"
+				onclick="logout()">退出</a>
+			</span>
+		</div>
+		<div id="body">
+			<div id="tool-bar">
+				<input id="parent-button" class="button" type="button" value="返回上一级"
+					onclick="parentFolder()"> <input id="index-button"
+					class="button" type="button" value="首页" onclick="index()">
+				<input id="upload-button-container" type="button" class="button"
+					value="上传文件" name="uploadFile" onclick="trueUploadFile()">
+				<input id="new-folder-button" class="button" type="button"
+					value="新建文件夹" onclick="onNewFolderClick()"> <input
+					id="upload-file-button" type="file" onchange="fileUpload()">
+			</div>
+			<div id="show-path">
+				<div id="path">全部文件</div>
+				<div id="file-count">共0个</div>
+			</div>
+			<div id="file-container">
+				<table id="file-list">
+					<tr id="table-header">
+						<td class="fileName">文件名</td>
+						<td class="lastModify">最后修改时间</td>
+						<td class="fileSize">大小</td>
+						<td class="operation">操作</td>
+					</tr>
+					<!-- 文件展示 -->
+				</table>
+			</div>
+		</div>
+		<!-- 遮罩层 -->
+		<div id="cover"></div>
+		<!-- 提示用户输入文件夹名弹出框 -->
+		<div id="new-folder-name-container">
+			<p>请输入文件夹名称：</p>
+			<input type="text" id="new-folder-name"> <input type="button"
+				class="new-folder-button" value="确定" onclick="newFolder()">
+			<input type="button" class="new-folder-button" value="取消"
+				onclick="cancelNewFolder()">
+		</div>
+	</div>
+</body>
+</html>
