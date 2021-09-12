@@ -1,11 +1,11 @@
 # CloudDisk
 
-## Details
+## 介绍
 
-> A __*web*__ project of a __*network cloud disk*__
+一个简单的网络云盘Web系统
 
-## Framework
+## 软件架构
 
-> __Front end__: html+css+js+jquery+ajax
-> 
-> __Rear end__: SSH
+前端: html+css+js+jquery+ajax
+
+后端: SSH
